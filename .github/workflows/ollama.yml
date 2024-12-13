@@ -7,13 +7,28 @@ jobs:
   ollama:
     runs-on: ubuntu-latest
     steps:
+      - name: Cache ollama binary
+        id: cache-ollama
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.HOME }}/ollama-bin
+          key: ${{ runner.os }}-ollama-bin
+
       - name: Install ollama
-        run: curl -fsSL https://ollama.com/install.sh | sh
+        if: steps.cache-ollama.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          mkdir -p $HOME/ollama-bin
+          cp $(which ollama) $HOME/ollama-bin/ollama
+
+      - name: Add ollama to PATH
+        run: echo "$HOME/ollama-bin" >> $GITHUB_PATH
+
       - name: Run ollama
         run: |
           ollama serve &
-          ollama pull llama3.3
+          ollama pull llama3.2:3b
 
       - name: Call ollama API
         run: |
-          curl -d '{"model": "llama3.3", "stream": false, "prompt":"Who are you? What is your model name?"}' http://localhost:11434/api/generate
+          curl -d '{"model": "llama3.2:3b", "stream": false, "prompt":"Who are you? What is your model name?"}' http://localhost:11434/api/generate
