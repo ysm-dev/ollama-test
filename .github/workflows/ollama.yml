@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  summarize:
+  ollama:
     runs-on: ubuntu-latest
     steps:
       - name: Install ollama
@@ -12,8 +12,8 @@ jobs:
       - name: Run ollama
         run: |
           ollama serve &
-          ollama pull phi3:mini
+          ollama pull llama3.3
 
       - name: Call ollama API
         run: |
-          curl -d '{"model": "phi3:mini", "stream": false, "prompt":"Who are you?"}' http://localhost:11434/api/generate
+          curl -d '{"model": "llama3.3", "stream": false, "prompt":"Who are you? What is your model name?"}' http://localhost:11434/api/generate
